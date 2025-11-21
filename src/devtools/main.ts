@@ -4,7 +4,7 @@ try {
     "OPFS Explorer",
     "icons/icon-128.png",
     "panel.html",
-    (_panel: chrome.devtools.panels.ExtensionPanel) => {
+    () => {
       console.log("OPFS Explorer panel created");
     }
   );

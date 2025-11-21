@@ -4,7 +4,7 @@ import type { OpfsMessage, FileEntry } from '../types';
 
 console.log('OPFS Explorer Content Script Loaded');
 
-chrome.runtime.onMessage.addListener((request: OpfsMessage, _sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+chrome.runtime.onMessage.addListener((request: unknown, _sender: chrome.runtime.MessageSender, sendResponse: (response?: unknown) => void) => {
   const handleRequest = async () => {
     try {
       // Environment Checks
@@ -15,58 +15,61 @@ chrome.runtime.onMessage.addListener((request: OpfsMessage, _sender: chrome.runt
         throw new Error("OPFS API (navigator.storage.getDirectory) is not supported in this browser/context.");
       }
 
-      switch (request.type) {
+      const msg = request as OpfsMessage;
+
+      switch (msg.type) {
         case 'OPFS_List': {
-          const files = await listOPFS(request.path);
+          const files = await listOPFS(msg.path);
           sendResponse({ success: true, data: files });
           break;
         }
         case 'OPFS_Read': {
-          const content = await readFileOPFS(request.path);
+          const content = await readFileOPFS(msg.path);
           sendResponse({ success: true, data: content });
           break;
         }
         case 'OPFS_Write': {
-          await writeFileOPFS(request.path, request.content, request.isBinary);
+          await writeFileOPFS(msg.path, msg.content, msg.isBinary);
           sendResponse({ success: true });
           break;
         }
         case 'OPFS_Rename': {
-          await renameOPFS(request.path, request.newPath);
+          await renameOPFS(msg.path, msg.newPath);
           sendResponse({ success: true });
           break;
         }
         case 'OPFS_Move': {
-          await moveOPFS(request.oldPath, request.newPath);
+          await moveOPFS(msg.oldPath, msg.newPath);
           sendResponse({ success: true });
           break;
         }
         case 'OPFS_Create': {
-          if (request.kind === 'directory') {
-             await createDirectoryOPFS(request.path);
+          if (msg.kind === 'directory') {
+             await createDirectoryOPFS(msg.path);
           } else {
-             await createFileOPFS(request.path);
+             await createFileOPFS(msg.path);
           }
           sendResponse({ success: true });
           break;
         }
         case 'OPFS_Delete': {
-          await deleteOPFS(request.path);
+          await deleteOPFS(msg.path);
           sendResponse({ success: true });
           break;
         }
         case 'OPFS_Download': {
-          await downloadOPFS(request.path);
+          await downloadOPFS(msg.path);
           sendResponse({ success: true });
           break;
         }
         default:
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          sendResponse({ success: false, error: `Unknown command: ${(request as any).type}` });
+          sendResponse({ success: false, error: `Unknown command: ${(msg as any).type}` });
       }
-    } catch (err: any) {
-      console.error("OPFS Explorer Error:", err);
-      sendResponse({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("OPFS Explorer Error:", message);
+      sendResponse({ success: false, error: message });
     }
   };
 
@@ -76,7 +79,7 @@ chrome.runtime.onMessage.addListener((request: OpfsMessage, _sender: chrome.runt
 
 // Helper to resolve a path string (e.g., "folder/subfolder") to a DirectoryHandle
 async function resolvePath(path: string): Promise<FileSystemDirectoryHandle> {
-  let root = await navigator.storage.getDirectory();
+  const root = await navigator.storage.getDirectory();
   if (!path || path === '') return root;
 
   const parts = path.split('/').filter(p => p.length > 0);
@@ -91,7 +94,7 @@ async function listOPFS(path = ''): Promise<FileEntry[]> {
   try {
     const dirHandle = await resolvePath(path);
     const files: FileEntry[] = [];
-    // @ts-ignore - iterating over async iterator
+    // @ts-expect-error - iterating over async iterator
     for await (const [name, handle] of dirHandle.entries()) {
         files.push({
             name,

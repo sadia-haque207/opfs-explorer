@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ChevronRight, ChevronDown, Folder, FileJson, FileCode, FileText, Image } from 'lucide-react';
 import { opfsApi } from '../api';
 import type { FileEntry } from '../api';
@@ -24,7 +24,7 @@ export function TreeItem({ entry, depth = 0, onSelect, selectedPath, onContextMe
   const isSelected = selectedPath === entry.path;
   const paddingLeft = `${depth * 12 + 4}px`;
 
-  const fetchChildren = async () => {
+  const fetchChildren = useCallback(async () => {
       setLoading(true);
       try {
         const files = await opfsApi.list(entry.path);
@@ -34,13 +34,13 @@ export function TreeItem({ entry, depth = 0, onSelect, selectedPath, onContextMe
       } finally {
         setLoading(false);
       }
-  };
+  }, [entry.path]);
 
   useEffect(() => {
       if (expanded) {
           fetchChildren();
       }
-  }, [expanded, refreshTrigger]);
+  }, [expanded, refreshTrigger, fetchChildren]);
 
   const handleToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();

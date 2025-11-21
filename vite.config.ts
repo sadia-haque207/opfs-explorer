@@ -13,7 +13,7 @@ export default defineConfig({
         content: resolve(__dirname, 'src/content/index.ts'),
       },
       output: {
-        entryFileNames: (_chunk) => {
+        entryFileNames: () => {
           return `assets/[name].js`
         },
         chunkFileNames: `assets/[name]-[hash].js`,

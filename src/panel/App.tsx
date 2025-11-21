@@ -37,15 +37,15 @@ function App() {
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  const addToast = (type: 'success' | 'error' | 'info', message: string) => {
+  const addToast = useCallback((type: 'success' | 'error' | 'info', message: string) => {
       const id = Math.random().toString(36).substring(7);
       setToasts(prev => [...prev, { id, type, message }]);
       setTimeout(() => dismissToast(id), 5000);
-  };
+  }, []);
   
   const dismissToast = (id: string) => setToasts(prev => prev.filter(t => t.id !== id));
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     setConnectionError(false);
@@ -63,11 +63,11 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     refresh();
-  }, []);
+  }, [refresh]);
 
   // Drag and Drop Handlers
   const handleDragEnter = (e: React.DragEvent) => {
@@ -191,7 +191,7 @@ function App() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedFile, fileContent]);
+  }, [selectedFile, fileContent, saveFile]);
 
   const handleSelect = async (entry: FileEntry) => {
     if (selectedFile?.path === entry.path) return;
@@ -217,7 +217,7 @@ function App() {
     }
   };
 
-  const saveFile = async () => {
+  const saveFile = useCallback(async () => {
     if (!selectedFile || selectedFile.kind !== 'file') return;
     try {
       await opfsApi.write(selectedFile.path, fileContent);
@@ -226,16 +226,16 @@ function App() {
     } catch (err) {
       addToast('error', `Failed to save: ${err instanceof Error ? err.message : String(err)}`);
     }
-  };
+  }, [selectedFile, fileContent, addToast]);
 
-  const handleDownload = async (path: string) => {
+  const handleDownload = useCallback(async (path: string) => {
       try {
           await opfsApi.download(path);
           addToast('success', 'Download started');
       } catch (err) {
           addToast('error', `Download failed: ${err instanceof Error ? err.message : String(err)}`);
       }
-  };
+  }, [addToast]);
 
   const handleContextMenu = useCallback((e: React.MouseEvent, entry: FileEntry) => {
     e.preventDefault();
@@ -354,7 +354,7 @@ function App() {
     }
 
     setContextMenu({ x: e.clientX, y: e.clientY, items });
-  }, [selectedFile]);
+  }, [selectedFile, addToast, handleDownload, refresh]);
 
   const handleRootCreate = async (kind: 'file' | 'directory') => {
       setModal({
@@ -568,6 +568,7 @@ function App() {
       )}
       
       <Modal 
+        key={modal.isOpen ? 'open' : 'closed'}
         isOpen={modal.isOpen}
         type={modal.type}
         title={modal.title}

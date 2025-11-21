@@ -18,10 +18,9 @@ export function Modal({ isOpen, title, message, inputValue = '', placeholder, ty
 
   useEffect(() => {
     if (isOpen) {
-      setValue(inputValue);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [isOpen, inputValue]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
