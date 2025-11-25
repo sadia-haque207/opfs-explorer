@@ -86,6 +86,7 @@ jobs:
         if: inputs.skip_release != true
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: v${{ env.VERSION }}
           body: |
             ${{ steps.changelog.outputs.changelog }}
 
