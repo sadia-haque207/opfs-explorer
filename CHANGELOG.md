@@ -5,6 +5,19 @@ All notable changes to OPFS Explorer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.4] - 2025-01-25
+
+### Added
+
+- **Verified CRX Uploads**: Support for signed CRX files for Chrome Web Store verification
+- **Manual Release Workflow**: Trigger releases manually via GitHub Actions without pushing tags
+- **Automated Asset Generation**: Scripts to generate promo tiles and icons from SVG source
+- **New SVG Logo**: Redesigned logo with folder, file, and magnifying glass elements
+
+### Changed
+
+- **Release Workflow**: Now supports both tag-triggered and manual releases with test mode
+
 ## [0.0.3] - 2025-01-25
 
 ### Added
