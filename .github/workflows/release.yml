@@ -27,18 +27,26 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Package Extension
+      - name: Package Extension (ZIP)
         run: |
-          # We reuse the logic from our package script but adapted for CI
           mkdir -p releases
           VERSION=${GITHUB_REF#refs/tags/v}
           ZIP_NAME=opfs-explorer-v${VERSION}.zip
-          
+
           cd dist
           zip -r ../releases/$ZIP_NAME .
           cd ..
-          
+
           echo "ZIP_PATH=releases/$ZIP_NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Sign Extension (CRX)
+        if: ${{ secrets.CRX_PRIVATE_KEY != '' }}
+        uses: cardinalby/webext-buildtools-chrome-crx-action@v2
+        with:
+          zipFilePath: ${{ env.ZIP_PATH }}
+          crxFilePath: releases/opfs-explorer-v${{ env.VERSION }}.crx
+          privateKey: ${{ secrets.CRX_PRIVATE_KEY }}
 
       - name: Generate Changelog
         id: changelog
@@ -51,10 +59,27 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          body: ${{ steps.changelog.outputs.changelog }}
-          files: ${{ env.ZIP_PATH }}
+          body: |
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Installation
+
+            ### Chrome Web Store
+            *(Link pending publication)*
+
+            ### Manual Installation
+            1. Download `opfs-explorer-v${{ env.VERSION }}.zip`
+            2. Go to `chrome://extensions`
+            3. Enable "Developer mode"
+            4. Click "Load unpacked" and select the extracted folder
+
+            ### Verified CRX (if available)
+            If you see a `.crx` file, it's been signed for Verified CRX Uploads.
+          files: |
+            releases/opfs-explorer-v${{ env.VERSION }}.zip
+            releases/opfs-explorer-v${{ env.VERSION }}.crx
           draft: false
           prerelease: false
-          generate_release_notes: true
+          fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -63,3 +63,7 @@ test-results/
 
 # Claude Code
 .claude/
+
+# Extension Keys (NEVER commit these!)
+*.pem
+extension.pub
