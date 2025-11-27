@@ -6,12 +6,13 @@ import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 describe("opfsApi", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.resetModules();
   });
 
   it("should reject when inspectedWindow.eval returns an exception", async () => {
-    // Mock eval to return an exception
+    // Mock eval to return an exception (2 argument callback: result, exceptionInfo)
     (chrome.devtools.inspectedWindow.eval as Mock).mockImplementation(
-      (_code, _options, callback) => {
+      (_code, callback) => {
         callback(undefined, { isError: true, value: "Test error" });
       }
     );
@@ -24,8 +25,11 @@ describe("opfsApi", () => {
 
   it("should reject when inspectedWindow.eval returns exception description", async () => {
     (chrome.devtools.inspectedWindow.eval as Mock).mockImplementation(
-      (_code, _options, callback) => {
-        callback(undefined, { isError: false, description: "Description error" });
+      (_code, callback) => {
+        callback(undefined, {
+          isError: false,
+          description: "Description error",
+        });
       }
     );
 
@@ -38,7 +42,7 @@ describe("opfsApi", () => {
     const mockFiles = [{ name: "test.txt", kind: "file", path: "test.txt" }];
 
     (chrome.devtools.inspectedWindow.eval as Mock).mockImplementation(
-      (code, _options, callback) => {
+      (code, callback) => {
         // Return done status immediately
         if (code.includes("delete window")) {
           callback?.(undefined, undefined);
@@ -58,7 +62,7 @@ describe("opfsApi", () => {
     let capturedCode = "";
 
     (chrome.devtools.inspectedWindow.eval as Mock).mockImplementation(
-      (code, _options, callback) => {
+      (code, callback) => {
         if (!capturedCode && !code.includes("delete window")) {
           capturedCode = code;
         }

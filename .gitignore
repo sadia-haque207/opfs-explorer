@@ -67,3 +67,7 @@ test-results/
 # Extension Keys (NEVER commit these!)
 *.pem
 extension.pub
+
+# Safari Build Output
+safari-app/
+safari-build/

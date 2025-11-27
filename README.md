@@ -4,7 +4,11 @@
 
 ![OPFS Explorer Icon](public/icons/icon-128.png)
 
-**A powerful Chrome DevTools extension to inspect, edit, and manage the Origin Private File System.**
+**A powerful browser DevTools extension to inspect, edit, and manage the Origin Private File System.**
+
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/hhegfidnlemidclkkldeekjamkfcamic?label=Chrome&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/opfs-explorer/hhegfidnlemidclkkldeekjamkfcamic)
+[![Firefox Add-on](https://img.shields.io/amo/v/opfs-explorer?label=Firefox&logo=firefox&logoColor=white)](https://addons.mozilla.org/en-US/firefox/addon/opfs-explorer/)
+[![Edge Add-on](https://img.shields.io/badge/dynamic/json?label=Edge&logo=microsoftedge&logoColor=white&query=%24.version&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fodbpcdmkgeikdcmcdlfmdkbjiaeknnbd)](https://microsoftedge.microsoft.com/addons/detail/odbpcdmkgeikdcmcdlfmdkbjiaeknnbd)
 
 [Features](#features) • [Installation](#installation) • [Usage](#usage) • [Development](#development) • [Architecture](#architecture)
 
@@ -16,7 +20,7 @@
 
 **OPFS Explorer** solves a common pain point for modern web developers: the **Origin Private File System (OPFS)** is invisible by default. Browsers do not provide a native way to inspect files stored via `navigator.storage.getDirectory()`, making it incredibly difficult to debug applications using **SQLite Wasm**, **File System Access API**, or offline PWA storage.
 
-This extension bridges that gap by adding a native "OPFS Explorer" panel to your Chrome DevTools, providing a full-featured file manager and editor right inside the browser.
+This extension bridges that gap by adding a native "OPFS Explorer" panel to your browser's DevTools, providing a full-featured file manager and editor right inside the browser.
 
 ## ✨ Features
 
@@ -44,8 +48,14 @@ This extension bridges that gap by adding a native "OPFS Explorer" panel to your
 
 ## 📦 Installation
 
-### From Chrome Web Store
-*(Link pending publication)*
+### From Browser Extension Stores
+
+| Browser | Install Link |
+|---------|--------------|
+| **Chrome** | [Chrome Web Store](https://chromewebstore.google.com/detail/opfs-explorer/hhegfidnlemidclkkldeekjamkfcamic) |
+| **Firefox** | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/opfs-explorer/) |
+| **Edge** | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/odbpcdmkgeikdcmcdlfmdkbjiaeknnbd) |
+| **Brave, Vivaldi, Arc** | Use the [Chrome Web Store](https://chromewebstore.google.com/detail/opfs-explorer/hhegfidnlemidclkkldeekjamkfcamic) link |
 
 ### Manual Installation (Developer Mode)
 1.  Clone this repository.

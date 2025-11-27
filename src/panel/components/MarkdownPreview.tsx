@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useLayoutEffect } from 'react';
+import DOMPurify from 'dompurify';
 
 interface MarkdownPreviewProps {
   content: string;
@@ -60,14 +61,39 @@ function parseMarkdown(text: string): string {
   return html;
 }
 
+// Parse HTML string into DOM nodes and append to container
+// This avoids innerHTML assignment which triggers Firefox addon linter warnings
+function setContentFromHTML(container: HTMLElement, html: string): void {
+  // Clear existing content
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
+  
+  // Parse sanitized HTML using DOMParser (safer than innerHTML)
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  
+  // Move all body children to the container
+  while (doc.body.firstChild) {
+    container.appendChild(doc.body.firstChild);
+  }
+}
+
 export function MarkdownPreview({ content }: MarkdownPreviewProps) {
-  const html = useMemo(() => parseMarkdown(content), [content]);
+  const containerRef = useRef<HTMLElement>(null);
+  const sanitizedHtml = useMemo(() => DOMPurify.sanitize(parseMarkdown(content)), [content]);
+
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      setContentFromHTML(containerRef.current, sanitizedHtml);
+    }
+  }, [sanitizedHtml]);
 
   return (
     <div className="h-full overflow-auto p-6 bg-dt-bg">
       <article
+        ref={containerRef}
         className="prose prose-invert max-w-3xl mx-auto text-dt-text text-sm leading-relaxed"
-        dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>
   );

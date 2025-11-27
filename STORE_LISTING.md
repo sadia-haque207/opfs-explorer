@@ -1,4 +1,14 @@
-# Chrome Web Store Listing - OPFS Explorer v0.0.5
+# Browser Extension Store Listing - OPFS Explorer v0.0.4
+
+## Published Store Links
+
+| Store | URL |
+|-------|-----|
+| Chrome Web Store | https://chromewebstore.google.com/detail/opfs-explorer/hhegfidnlemidclkkldeekjamkfcamic |
+| Firefox Add-ons | https://addons.mozilla.org/en-US/firefox/addon/opfs-explorer/ |
+| Edge Add-ons | https://microsoftedge.microsoft.com/addons/detail/odbpcdmkgeikdcmcdlfmdkbjiaeknnbd |
+
+---
 
 ## Extension Name
 
@@ -19,7 +29,7 @@ OPFS Explorer - The Missing DevTools Panel for Origin Private File System
 
 The Origin Private File System (OPFS) is a powerful browser API for high-performance file storage, but browsers don't provide any way to see what's inside. OPFS Explorer fills this gap by adding a dedicated panel to Chrome DevTools.
 
-WHAT'S NEW IN v0.0.5:
+WHAT'S NEW IN v0.0.4:
 • Enhanced Security - No content scripts, no host permissions required
 • Verified CRX Support - Signed extension builds for verification
 • New Logo - Redesigned with folder, file, and magnifying glass elements

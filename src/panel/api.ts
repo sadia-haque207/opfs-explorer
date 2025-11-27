@@ -1,106 +1,299 @@
 import type { FileEntry, StorageEstimate, FileReadResult } from "../types";
 export type { FileEntry, StorageEstimate, FileReadResult };
 
+// Declare browser namespace for Safari/Firefox compatibility
+declare const browser: typeof chrome | undefined;
+
+/**
+ * Detect if we're running in Safari
+ */
+const isSafari = (() => {
+  try {
+    return (
+      /^((?!chrome|android).)*safari/i.test(navigator.userAgent) ||
+      (typeof browser !== "undefined" && !!(browser as typeof chrome)?.devtools)
+    );
+  } catch {
+    return false;
+  }
+})();
+
+/**
+ * Get the devtools API (supports both chrome.* and browser.* namespaces)
+ */
+function getDevtools(): typeof chrome.devtools | null {
+  // Safari/Firefox use browser.* namespace
+  if (typeof browser !== "undefined") {
+    const b = browser as typeof chrome;
+    if (b?.devtools?.inspectedWindow) {
+      return b.devtools;
+    }
+  }
+  // Chrome uses chrome.* namespace
+  if (typeof chrome !== "undefined" && chrome?.devtools?.inspectedWindow) {
+    return chrome.devtools;
+  }
+  return null;
+}
+
+/**
+ * Execute eval in the inspected window.
+ * Safari uses Promise-based API, Chrome uses callback-based API.
+ */
+function executeEval(
+  devtools: typeof chrome.devtools,
+  code: string
+): Promise<
+  [unknown, chrome.devtools.inspectedWindow.EvaluationExceptionInfo | undefined]
+> {
+  return new Promise((resolve) => {
+    try {
+      // In Safari, eval returns a Promise. In Chrome, it uses callbacks.
+      // We need to handle both cases.
+
+      // First, try with a callback (Chrome style)
+      let callbackCalled = false;
+
+      const maybePromise = devtools.inspectedWindow.eval(
+        code,
+        (
+          evalResult: unknown,
+          exceptionInfo:
+            | chrome.devtools.inspectedWindow.EvaluationExceptionInfo
+            | undefined
+        ) => {
+          callbackCalled = true;
+          resolve([evalResult, exceptionInfo]);
+        }
+      );
+
+      // Check if it returned a Promise (Safari style) - cast to any to check
+      const result = maybePromise as unknown;
+      if (
+        result &&
+        typeof result === "object" &&
+        typeof (result as { then?: unknown }).then === "function"
+      ) {
+        // It's a Promise (Safari)
+        (
+          result as Promise<
+            [
+              unknown,
+              (
+                | chrome.devtools.inspectedWindow.EvaluationExceptionInfo
+                | undefined
+              )
+            ]
+          >
+        )
+          .then((res) => {
+            if (!callbackCalled) {
+              // Safari returns [result, exceptionInfo] or just result
+              if (Array.isArray(res)) {
+                resolve(
+                  res as [
+                    unknown,
+                    (
+                      | chrome.devtools.inspectedWindow.EvaluationExceptionInfo
+                      | undefined
+                    )
+                  ]
+                );
+              } else {
+                resolve([res, undefined]);
+              }
+            }
+          })
+          .catch((err) => {
+            if (!callbackCalled) {
+              resolve([
+                undefined,
+                {
+                  isError: true,
+                  code: String(err),
+                  description: String(err),
+                  details: [],
+                  isException: false,
+                  value: String(err),
+                },
+              ]);
+            }
+          });
+      }
+    } catch (err) {
+      resolve([
+        undefined,
+        {
+          isError: true,
+          code: String(err),
+          description: String(err),
+          details: [],
+          isException: false,
+          value: String(err),
+        },
+      ]);
+    }
+  });
+}
+
 /**
  * Helper to execute async code in the inspected page context.
  * Uses a polling mechanism to handle async operations since inspectedWindow.eval
  * doesn't natively await Promises.
+ *
+ * Safari has known issues with inspectedWindow.eval() that can crash DevTools.
+ * This implementation includes Safari-specific workarounds:
+ * - Slower polling interval to reduce rapid eval() calls
+ * - Simplified code structure to avoid WebKit parsing issues
+ * - Better error handling to prevent crashes
+ * - Support for both Promise-based (Safari) and callback-based (Chrome) APIs
  */
 function evalInPage<T>(code: string): Promise<T> {
   return new Promise((resolve, reject) => {
-    if (!chrome?.devtools?.inspectedWindow) {
+    const devtools = getDevtools();
+
+    if (!devtools) {
       // Mock for local dev
       console.log("[Mock eval]", code.slice(0, 100) + "...");
       reject(new Error("DevTools not available in development mode"));
       return;
     }
 
-    // Generate a unique ID for this operation
-    const opId = `__opfs_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    // Generate a unique ID for this operation - use simpler format for Safari
+    const opId =
+      "__opfs_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+
+    // Polling interval - Safari needs slower polling to avoid crashes
+    const pollInterval = isSafari ? 100 : 10;
+
+    // Maximum polling attempts to prevent infinite loops
+    const maxAttempts = 300; // 30 seconds at 100ms, 3 seconds at 10ms
+    let attempts = 0;
 
     // Wrap the async code to store result in a global variable
-    const wrappedCode = `
-      (function() {
-        window["${opId}"] = { status: "pending" };
-        (async function() {
-          try {
-            const result = await (async function() {
-              ${code}
-            })();
-            window["${opId}"] = { status: "done", result: result };
-          } catch (err) {
-            window["${opId}"] = { status: "error", error: err.message || String(err) };
-          }
-        })();
-        return window["${opId}"];
-      })()
-    `;
+    // Use string concatenation instead of template literals for Safari compatibility
+    const wrappedCode =
+      "(function() {" +
+      "window['" +
+      opId +
+      "'] = { status: 'pending' };" +
+      "(async function() {" +
+      "try {" +
+      "var result = await (async function() {" +
+      code +
+      "})();" +
+      "window['" +
+      opId +
+      "'] = { status: 'done', result: result };" +
+      "} catch (err) {" +
+      "window['" +
+      opId +
+      "'] = { status: 'error', error: err.message || String(err) };" +
+      "}" +
+      "})();" +
+      "return window['" +
+      opId +
+      "'];" +
+      "})()";
 
     // First, start the async operation
-    chrome.devtools.inspectedWindow.eval(
-      wrappedCode,
-      { useContentScriptContext: false },
-      (initialResult, exceptionInfo) => {
+    executeEval(devtools, wrappedCode)
+      .then(([initialResult, exceptionInfo]) => {
         if (exceptionInfo) {
           const errorMsg = exceptionInfo.isError
-            ? exceptionInfo.value
-            : exceptionInfo.description || exceptionInfo.code || "Unknown error";
+            ? exceptionInfo.value ||
+              exceptionInfo.description ||
+              exceptionInfo.code
+            : exceptionInfo.description ||
+              exceptionInfo.code ||
+              "Unknown error";
           reject(new Error(String(errorMsg)));
           return;
         }
 
         // Poll for the result
         const pollForResult = () => {
-          chrome.devtools.inspectedWindow.eval(
-            `window["${opId}"]`,
-            { useContentScriptContext: false },
-            (pollResult: { status: string; result?: T; error?: string }, pollException) => {
+          attempts++;
+
+          if (attempts > maxAttempts) {
+            // Clean up and timeout
+            executeEval(devtools, "delete window['" + opId + "']").catch(
+              () => {}
+            );
+            reject(new Error("Operation timed out"));
+            return;
+          }
+
+          executeEval(devtools, "window['" + opId + "']")
+            .then(([pollResult, pollException]) => {
               if (pollException) {
+                // Don't immediately reject on polling errors in Safari - may be transient
+                if (isSafari && attempts < 3) {
+                  setTimeout(pollForResult, pollInterval * 2);
+                  return;
+                }
                 reject(new Error(pollException.description || "Polling error"));
                 return;
               }
 
-              if (!pollResult) {
+              const result = pollResult as {
+                status: string;
+                result?: T;
+                error?: string;
+              } | null;
+
+              if (!result) {
+                // In Safari, null result may be transient
+                if (isSafari && attempts < 5) {
+                  setTimeout(pollForResult, pollInterval);
+                  return;
+                }
                 reject(new Error("No result from eval"));
                 return;
               }
 
-              if (pollResult.status === "pending") {
+              if (result.status === "pending") {
                 // Still pending, poll again
-                setTimeout(pollForResult, 10);
-              } else if (pollResult.status === "done") {
+                setTimeout(pollForResult, pollInterval);
+              } else if (result.status === "done") {
                 // Clean up and resolve
-                chrome.devtools.inspectedWindow.eval(
-                  `delete window["${opId}"]`,
-                  { useContentScriptContext: false }
+                executeEval(devtools, "delete window['" + opId + "']").catch(
+                  () => {}
                 );
-                resolve(pollResult.result as T);
-              } else if (pollResult.status === "error") {
+                resolve(result.result as T);
+              } else if (result.status === "error") {
                 // Clean up and reject
-                chrome.devtools.inspectedWindow.eval(
-                  `delete window["${opId}"]`,
-                  { useContentScriptContext: false }
+                executeEval(devtools, "delete window['" + opId + "']").catch(
+                  () => {}
                 );
-                reject(new Error(pollResult.error || "Unknown error"));
+                reject(new Error(result.error || "Unknown error"));
               }
-            }
-          );
+            })
+            .catch((err) => {
+              if (isSafari && attempts < 3) {
+                setTimeout(pollForResult, pollInterval * 2);
+                return;
+              }
+              reject(err);
+            });
         };
 
         // If already done (synchronous), resolve immediately
         if (initialResult && typeof initialResult === "object") {
-          const typedResult = initialResult as { status: string; result?: T; error?: string };
+          const typedResult = initialResult as {
+            status: string;
+            result?: T;
+            error?: string;
+          };
           if (typedResult.status === "done") {
-            chrome.devtools.inspectedWindow.eval(
-              `delete window["${opId}"]`,
-              { useContentScriptContext: false }
+            executeEval(devtools, "delete window['" + opId + "']").catch(
+              () => {}
             );
             resolve(typedResult.result as T);
             return;
           } else if (typedResult.status === "error") {
-            chrome.devtools.inspectedWindow.eval(
-              `delete window["${opId}"]`,
-              { useContentScriptContext: false }
+            executeEval(devtools, "delete window['" + opId + "']").catch(
+              () => {}
             );
             reject(new Error(typedResult.error || "Unknown error"));
             return;
@@ -108,9 +301,9 @@ function evalInPage<T>(code: string): Promise<T> {
         }
 
         // Start polling
-        setTimeout(pollForResult, 10);
-      }
-    );
+        setTimeout(pollForResult, pollInterval);
+      })
+      .catch(reject);
   });
 }
 
@@ -181,6 +374,22 @@ function __opfs_getMimeType(file) {
     txt: 'text/plain'
   };
   return mimeMap[ext || ''] || 'application/octet-stream';
+}
+
+// Polyfill for recursive copy (used when move() is not supported)
+async function __opfs_copyEntry(sourceHandle, destParentHandle, newName) {
+  if (sourceHandle.kind === 'file') {
+    const destFile = await destParentHandle.getFileHandle(newName || sourceHandle.name, { create: true });
+    const srcFile = await sourceHandle.getFile();
+    const writable = await destFile.createWritable();
+    await writable.write(await srcFile.arrayBuffer());
+    await writable.close();
+  } else if (sourceHandle.kind === 'directory') {
+    const destDir = await destParentHandle.getDirectoryHandle(newName || sourceHandle.name, { create: true });
+    for await (const [name, handle] of sourceHandle.entries()) {
+      await __opfs_copyEntry(handle, destDir, name);
+    }
+  }
 }
 `;
 
@@ -327,7 +536,11 @@ export const opfsApi = {
   /**
    * Write content to a file
    */
-  write: async (path: string, content: string, isBinary: boolean = false): Promise<void> => {
+  write: async (
+    path: string,
+    content: string,
+    isBinary: boolean = false
+  ): Promise<void> => {
     const safePath = escapeString(path);
     const safeContent = escapeString(content);
     const code = `
@@ -344,16 +557,20 @@ export const opfsApi = {
       const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
       const writable = await fileHandle.createWritable();
 
-      ${isBinary ? `
+      ${
+        isBinary
+          ? `
         const binaryString = atob("${safeContent}");
         const bytes = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
           bytes[i] = binaryString.charCodeAt(i);
         }
         await writable.write(bytes);
-      ` : `
+      `
+          : `
         await writable.write("${safeContent}");
-      `}
+      `
+      }
 
       await writable.close();
       return true;
@@ -389,7 +606,9 @@ export const opfsApi = {
       if ("move" in handle) {
         await handle.move("${safeNewName}");
       } else {
-        throw new Error("Rename (move) not supported in this browser version.");
+        // Polyfill for browsers that don't support move() (e.g. Firefox, Safari)
+        await __opfs_copyEntry(handle, dirHandle, "${safeNewName}");
+        await dirHandle.removeEntry(oldName, { recursive: true });
       }
       return true;
     `;
@@ -430,7 +649,9 @@ export const opfsApi = {
       if ("move" in handle) {
         await handle.move(newDirHandle, newName);
       } else {
-        throw new Error("Move API not supported in this browser.");
+        // Polyfill for browsers that don't support move() (e.g. Firefox, Safari)
+        await __opfs_copyEntry(handle, newDirHandle, newName);
+        await oldDirHandle.removeEntry(oldName, { recursive: true });
       }
       return true;
     `;
@@ -454,11 +675,15 @@ export const opfsApi = {
 
       const dirHandle = await __opfs_resolvePath(dirPath);
 
-      ${kind === "directory" ? `
+      ${
+        kind === "directory"
+          ? `
         await dirHandle.getDirectoryHandle(name, { create: true });
-      ` : `
+      `
+          : `
         await dirHandle.getFileHandle(name, { create: true });
-      `}
+      `
+      }
       return true;
     `;
     await evalInPage<boolean>(code);
